@@ -1,0 +1,105 @@
+
+put "C:/Users/Danny Cortes/Documents/stream/transparent.webm"
+put "C:/Users/Danny Cortes/Documents/stream/stream.py"
+put "C:/Users/Danny Cortes/Documents/stream/main.py"
+put "C:/Users/Danny Cortes/Documents/stream/dual_robot_simple_main.py"
+
+put "C:/Users/Danny Cortes/Documents/stream/dual_api_gendered_robots.py"
+
+put "C:/Users/Danny Cortes/Documents/stream/output.mp4"
+
+sftp root@149.248.16.8
+ssh root@149.248.16.8
+o%5PCGJX54xh{#7y
+
+put -r "C:/Users/Danny Cortes/Documents/stream/modules"
+
+black stream.py
+autopep8 --in-place --aggressive stream.py
+
+python3 dual_api_gendered_robots.py --platform twitch --stream-key live_678059431_TQaW2WIaXJ7UnLDAa34579D2R6zkKH
+
+
+python3 dual_api_gendered_robots.py --platform youtube
+
+python3 main.py --platform twitch --stream-key live_678059431_TQaW2WIaXJ7UnLDAa34579D2R6zkKH
+python3 main.py --platform youtube
+nohup python3 main.py --platform youtube
+
+//Fix a video to be stremeable
+ffmpeg -i audio.mp4 -c copy -movflags +faststart speaking.mp4
+ffmpeg -i output_fixed.mp4 -c:v libx264 -preset fast -crf 23 -c:a aac -movflags +faststart output_streaming.mp4
+
+put "C:/Users/Danny Cortes/Documents/stream/debug_streamer.py"
+python3 debug_streamer.py
+
+
+ffmpeg -f lavfi -i testsrc=size=1280x720:rate=30 \
+       -f lavfi -i sine=frequency=1000:sample_rate=44100 \
+       -c:v libx264 -preset veryfast -b:v 2500k \
+       -c:a aac -b:a 128k \
+       -f flv \
+       rtmp://bog01.contribute.live-video.net/app/live_678059431_TQaW2WIaXJ7UnLDAa34579D2R6zkKH
+
+python3 .py --platform twitch --stream-key live_678059431_TQaW2WIaXJ7UnLDAa34579D2R6zkKH
+
+
+python3 audio_debug.py live_678059431_TQaW2WIaXJ7UnLDAa34579D2R6zkKH
+
+sudo ufw allow from 181.55.68.106 to any port 22
+sudo ufw allow from 
+
+pkill -f stream.py
+
+ffmpeg -re -i output.mp4 \
+  -c:v libx264 -preset ultrafast -b:v 1500k -g 30 \
+  -c:a aac -b:a 96k \
+  -f flv -flvflags no_duration_filesize \
+  rtmp://bog01.contribute.live-video.net/app/live_678059431_TQaW2WIaXJ7UnLDAa34579D2R6zkKH
+
+
+ffmpeg -f lavfi -i "gradients=size=1280x720:duration=120:rate=30:c0=random:c1=random:x0=0:y0=0:x1=1280:y1=720" 
+       -f lavfi -i "anullsrc=duration=120:channel_layout=stereo:sample_rate=44100" 
+       -c:v libx264 -preset ultrafast -tune zerolatency 
+       -profile:v baseline -level 3.0 
+       -b:v 2500k -maxrate 2500k -bufsize 5000k 
+       -pix_fmt yuv420p 
+       -c:a aac -b:a 128k 
+       -movflags +faststart 
+       output_fixed2.mp4
+
+
+
+
+
+# Create glowing "SPEAKING" text that pulses
+ffmpeg -f lavfi -i color=c=black@0.0:s=1280x720:d=10:r=30 -filter_complex \
+"[0]drawtext=text='🔊 SPEAKING':fontsize=72:fontcolor=white:x=(w-text_w)/2:y=100:\
+shadowcolor=red@0.8:shadowx=0:shadowy=0:box=1:boxcolor=red@'0.3+0.3*sin(2*PI*t/0.5)':\
+boxborderw=10[out]" \
+-map "[out]" -c:v libvpx-vp9 -pix_fmt yuva420p speaking_overlay.webm
+
+
+ffmpeg -f lavfi -i color=c=red@0.5:s=1280x720:d=10:r=30 
+-vf "format=yuva420p" 
+-c:v libvpx-vp9 -pix_fmt yuva420p test_overlay.webm
+
+ffmpeg -f lavfi -i testsrc=s=1280x720:d=10:r=30 -vf 
+"format=rgba,colorkey=black:0.01:0.0,format=yuva420p" 
+-c:v libvpx-vp9 test_pattern_transparent.webm
+
+
+# Simple color bars - very lightweight
+ffmpeg -f lavfi -i "color=c=blue:size=1280x720:rate=30:duration=60" \
+       -f lavfi -i "anullsrc=channel_layout=stereo:sample_rate=44100:duration=60" \
+       -c:v libx264 \
+       -preset superfast \
+       -profile:v baseline \
+       -level 3.1 \
+       -g 30 \
+       -b:v 1000k \
+       -pix_fmt yuv420p \
+       -c:a aac \
+       -b:a 128k \
+       -movflags +faststart \
+       output_fixed3.mp4
